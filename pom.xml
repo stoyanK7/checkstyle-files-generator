@@ -11,7 +11,7 @@
 
   <name>checkstyle-files-generator</name>
   <description>Utility for generating Checkstyle metadata and XDoc files.</description>
-  <url>https://github.com/checkstyle/checkstyle-files-generator</url>
+  <url>https://github.com/stoyanK7/checkstyle-files-generator</url>
 
   <licenses>
     <license>
@@ -28,11 +28,11 @@
   </developers>
 
   <scm>
-    <connection>scm:git:https://github.com/checkstyle/checkstyle-files-generator.git</connection>
+    <connection>scm:git:https://github.com/stoyanK7/checkstyle-files-generator.git</connection>
     <developerConnection>
-      scm:git:https://github.com/checkstyle/checkstyle-files-generator.git
+      scm:git:https://github.com/stoyanK7/checkstyle-files-generator.git
     </developerConnection>
-    <url>https://github.com/checkstyle/checkstyle-files-generator</url>
+    <url>https://github.com/stoyanK7/checkstyle-files-generator</url>
   </scm>
 
   <properties>
