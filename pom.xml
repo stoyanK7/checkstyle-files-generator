@@ -29,7 +29,9 @@
 
   <scm>
     <connection>scm:git:https://github.com/checkstyle/checkstyle-files-generator.git</connection>
-    <developerConnection>scm:git:git@github.com:checkstyle/checkstyle-files-generator.git</developerConnection>
+    <developerConnection>
+      scm:git:https://github.com/checkstyle/checkstyle-files-generator.git
+    </developerConnection>
     <url>https://github.com/checkstyle/checkstyle-files-generator</url>
   </scm>
 

@@ -28,6 +28,12 @@ jobs:
           fetch-depth: 0
           ref: main
 
+      - name: Restore Maven release descriptor
+        uses: actions/download-artifact@v8
+        with:
+          name: maven-release-${{ inputs.version }}
+          path: .
+
       - name: Set up JDK and Maven publishing
         uses: actions/setup-java@v5.7.0
         with:
