@@ -15,3 +15,20 @@ function checkForVariable() {
     exit 1
   fi
 }
+
+function getMavenProperty() {
+  ./mvnw \
+    --no-transfer-progress \
+    --quiet \
+    help:evaluate \
+    -Dexpression="$1" \
+    -DforceStdout
+}
+
+function getCheckstylePomVersion {
+  getMavenProperty project.version
+}
+
+function getCheckstylePomVersionWithoutSnapshot {
+  getCheckstylePomVersion | sed "s/-SNAPSHOT//"
+}
