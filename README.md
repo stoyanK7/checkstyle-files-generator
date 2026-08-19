@@ -25,7 +25,7 @@ For a local integration build, temporarily set `checkstyle-files-generator.versi
 the Checkstyle checkout's `pom.xml` to this project's version. Do not commit that
 local override. Then run the usual Checkstyle
 build from the `checkstyle` checkout. Checkstyle invokes this generator with
-`exec-maven-plugin`. The generator jar deliberately does not bundle Checkstyle: its
+`exec-maven-plgin`. The generator jar deliberately does not bundle Checkstyle: its
 runtime classpath is provided by the freshly compiled Checkstyle checkout.
 
 Normal development is driven through the Checkstyle build rather than by invoking the
