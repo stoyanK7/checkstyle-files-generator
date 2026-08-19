@@ -11,7 +11,7 @@ get-pr-info)
   checkForVariable "PR_NUMBER"
   mkdir -p .ci-temp
 
-  URL="https://api.github.com/repos/checkstyle/checkstyle-files-generator/pulls/${PR_NUMBER}"
+  URL="${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}"
 
   curl --fail-with-body -X GET "$URL" \
       -H "Accept: application/vnd.github+json" \

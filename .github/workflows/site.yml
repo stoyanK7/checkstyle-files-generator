@@ -3,6 +3,7 @@ name: "Site"
 env:
   AWS_REGION: "us-east-2"
   AWS_BUCKET_NAME: "checkstyle-diff-reports"
+  CHECKSTYLE_REPOSITORY: "stoyanK7/checkstyle"
   PR_NUMBER: >-
     ${{
       inputs.pr-number
@@ -59,7 +60,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v7
         with:
-          repository: checkstyle/checkstyle-files-generator
+          repository: ${{ github.repository }}
 
       - name: Getting PR info
         id: pr_info
@@ -72,6 +73,7 @@ jobs:
       - name: Download checkstyle-files-generator for PR
         uses: actions/checkout@v7
         with:
+          repository: ${{ github.repository }}
           ref: refs/pull/${{ env.PR_NUMBER }}/head
           path: .ci-temp/checkstyle-files-generator
           fetch-depth: 0
@@ -79,7 +81,7 @@ jobs:
       - name: Download checkstyle
         uses: actions/checkout@v7
         with:
-          repository: checkstyle/checkstyle
+          repository: ${{ env.CHECKSTYLE_REPOSITORY }}
           path: .ci-temp/checkstyle
           fetch-depth: 0
 
@@ -116,7 +118,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v7
         with:
-          repository: checkstyle/checkstyle-files-generator
+          repository: ${{ github.repository }}
 
       - name: Download generated site
         uses: actions/download-artifact@v8
@@ -150,7 +152,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v7
         with:
-          repository: checkstyle/checkstyle
+          repository: ${{ github.repository }}
 
       - name: Build PR comment message
         if: always()

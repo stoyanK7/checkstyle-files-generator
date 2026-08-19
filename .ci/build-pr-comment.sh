@@ -13,8 +13,8 @@ fi
 checkForVariable "GITHUB_TOKEN"
 checkForVariable "GITHUB_RUN_ID"
 
-JOBS_LINK="https://github.com/checkstyle/checkstyle-files-generator/actions/runs/${GITHUB_RUN_ID}"
-API_LINK="https://api.github.com/repos/checkstyle/checkstyle-files-generator/actions/runs/${GITHUB_RUN_ID}/jobs"
+JOBS_LINK="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}"
+API_LINK="${GITHUB_API_URL}/repos/${GITHUB_REPOSITORY}/actions/runs/${GITHUB_RUN_ID}/jobs"
 
 curl --fail-with-body -X GET "${API_LINK}" \
   -H "Accept: application/vnd.github+json" \
