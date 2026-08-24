@@ -63,6 +63,9 @@ generate-site)
   cd ../checkstyle
   ./mvnw -e --no-transfer-progress clean site -Pno-validations \
     -Dmaven.javadoc.skip=false -Djdepend.skip=false
+
+  cd ../checkstyle-files-generator
+  ./.ci/generate-extra-site-links.sh
   ;;
 
 # Copies the site to AWS S3 bucket and generates the message
@@ -78,8 +81,18 @@ publish-site)
   SITE=".ci-temp/checkstyle/target/site"
   LINK="https://${AWS_BUCKET_NAME}.s3.${AWS_REGION}.amazonaws.com"
 
-  aws s3 cp "$SITE" "s3://${AWS_BUCKET_NAME}/$FOLDER/" --recursive
   echo "$LINK/$FOLDER/index.html" > .ci-temp/message
+
+  EXTRA_LINKS_FILE="$SITE/extra-site-links.txt"
+  if [[ -f $EXTRA_LINKS_FILE ]]; then
+    while IFS= read -r EXTRA_LINK; do
+      echo "" >> .ci-temp/message
+      echo "$LINK/$FOLDER/$EXTRA_LINK" >> .ci-temp/message
+    done < "$EXTRA_LINKS_FILE"
+    find "$EXTRA_LINKS_FILE" -delete
+  fi
+
+  aws s3 cp "$SITE" "s3://${AWS_BUCKET_NAME}/$FOLDER/" --recursive
 
   ./.ci/append-to-github-output.sh "message" "$(cat .ci-temp/message)"
   ;;

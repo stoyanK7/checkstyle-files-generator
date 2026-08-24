@@ -2,45 +2,26 @@
 
 set -e
 
-source ./.ci/util.sh
+EXTRA_LINKS_FILE=.ci-temp/checkstyle/target/site/extra-site-links.txt
 
-PR_NUMBER=$1
-AWS_FOLDER_LINK=$2
-
-if [[ -z $PR_NUMBER || -z $AWS_FOLDER_LINK ]]; then
-  echo "not all parameters are set"
-  echo "Usage: $BASH_SCRIPT <pull request number> <aws folder link>"
-  exit 1
-fi
-
-checkForVariable "GITHUB_TOKEN"
-checkForVariable "GITHUB_REPOSITORY_OWNER"
-echo "PR_NUMBER=$PR_NUMBER"
-echo "AWS_FOLDER_LINK=$AWS_FOLDER_LINK"
-
-GITHUB_API_RESPONSE=$(curl --fail-with-body -Ls \
-  -H "Accept: application/vnd.github+json" \
-  -H "Authorization: Bearer $GITHUB_TOKEN" \
-  "https://api.github.com/repos/$GITHUB_REPOSITORY_OWNER/checkstyle/pulls/$PR_NUMBER/files?per_page=100")
-echo "GITHUB_API_RESPONSE=$GITHUB_API_RESPONSE"
-
-# Extract a list of the changed xdocs in the pull request. For example 'xdoc/config_misc.xml'.
-# We ignore template files and deleted files.
-CHANGED_XDOCS_PATHS=$(echo "$GITHUB_API_RESPONSE" \
-  | jq -r '.[] | select(.status != "removed") | .filename' \
+# The generator PR modifies the XDocs in the Checkstyle checkout during site generation.
+# We ignore templates and deleted files.
+CHANGED_XDOCS_PATHS=$(git -C .ci-temp/checkstyle diff --name-only --diff-filter=d -- \
+  src/site/xdoc/ \
   | grep src/site/xdoc/ \
   | grep -v '.*xml.template$' \
   || true)
 echo "CHANGED_XDOCS_PATHS=$CHANGED_XDOCS_PATHS"
 
 if [[ -z "$CHANGED_XDOCS_PATHS" ]]; then
-  echo "[WARN] No xdocs were changed in the pull request."
+  echo "[WARN] The generator did not change any XDocs."
   exit 0
 fi
 
-# Fetch the diff of the pull request.
-PR_DIFF=$(curl --fail-with-body -s \
-  "https://patch-diff.githubusercontent.com/raw/$GITHUB_REPOSITORY_OWNER/checkstyle/pull/$PR_NUMBER.diff")
+: > "$EXTRA_LINKS_FILE"
+
+# Use the diff produced by the locally installed generator.
+PR_DIFF=$(git -C .ci-temp/checkstyle diff -- src/site/xdoc/)
 
 # Iterate through all changed xdocs files.
 while IFS= read -r CURRENT_XDOC_PATH; do
@@ -60,7 +41,8 @@ while IFS= read -r CURRENT_XDOC_PATH; do
   SUBSECTION_ID=""
 
   DIFF_CONTEXT=$(
-    head -n "$EARLIEST_CHANGE_LINE_NUMBER" "$CURRENT_XDOC_PATH" | tac
+    head -n "$EARLIEST_CHANGE_LINE_NUMBER" \
+      ".ci-temp/checkstyle/$CURRENT_XDOC_PATH" | tac
   )
   echo "DIFF_CONTEXT:"
   echo "$DIFF_CONTEXT"
@@ -102,10 +84,8 @@ while IFS= read -r CURRENT_XDOC_PATH; do
   )
   echo "CURRENT_XDOC_NAME=$CURRENT_XDOC_NAME"
 
-  echo "" >> .ci-temp/message
-  echo "$AWS_FOLDER_LINK/$CURRENT_XDOC_NAME.html#$SUBSECTION_ID" \
-    >> .ci-temp/message
-  echo "Added link: $AWS_FOLDER_LINK/$CURRENT_XDOC_NAME.html#$SUBSECTION_ID"
+  echo "$CURRENT_XDOC_NAME.html#$SUBSECTION_ID" >> "$EXTRA_LINKS_FILE"
+  echo "Added link suffix: $CURRENT_XDOC_NAME.html#$SUBSECTION_ID"
 
   SUBSECTION_ID=""
 done <<< "$CHANGED_XDOCS_PATHS"
