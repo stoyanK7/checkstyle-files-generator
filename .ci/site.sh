@@ -65,7 +65,7 @@ generate-site)
   ./mvnw -e --no-transfer-progress clean site -Pno-validations \
     -Dmaven.javadoc.skip=false -Djdepend.skip=false
 
-  cd ../checkstyle-files-generator
+  cd ../..
   ./.ci/generate-extra-site-links.sh
   ;;
 
