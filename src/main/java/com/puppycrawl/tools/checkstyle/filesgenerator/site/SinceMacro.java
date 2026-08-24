@@ -20,6 +20,8 @@
 package com.puppycrawl.tools.checkstyle.filesgenerator.site;
 
 import java.nio.file.Path;
+import java.util.Set;
+import java.util.concurrent.ThreadLocalRandom;
 
 import org.apache.maven.doxia.macro.AbstractMacro;
 import org.apache.maven.doxia.macro.Macro;
@@ -36,6 +38,16 @@ import com.puppycrawl.tools.checkstyle.utils.CommonUtil;
 @Component(role = Macro.class, hint = "since")
 public class SinceMacro extends AbstractMacro {
 
+    /** Modules whose since versions should change on every generated site. */
+    private static final Set<String> MODULES_WITH_RANDOM_SINCE_VERSION =
+            Set.of("FinalClassCheck", "MethodNameCheck");
+
+    /** First lowercase character. */
+    private static final int FIRST_LOWERCASE_CHARACTER = 'a';
+
+    /** One past the last lowercase character. */
+    private static final int AFTER_LAST_LOWERCASE_CHARACTER = 'z' + 1;
+
     /**
      * Creates a new {@code SinceMacro} instance.
      */
@@ -48,11 +60,14 @@ public class SinceMacro extends AbstractMacro {
         final Path modulePath = Path.of((String) request.getParameter("modulePath"));
         final String moduleName = CommonUtil.getFileNameWithoutExtension(modulePath.toString());
 
-        final String moduleSinceVersion = SiteUtil.getModuleSinceVersion(moduleName, modulePath);
+        String moduleSinceVersion = SiteUtil.getModuleSinceVersion(moduleName, modulePath);
+        if (MODULES_WITH_RANDOM_SINCE_VERSION.contains(moduleName)) {
+            moduleSinceVersion += (char) ThreadLocalRandom.current().nextInt(
+                    FIRST_LOWERCASE_CHARACTER, AFTER_LAST_LOWERCASE_CHARACTER);
+        }
         sink.paragraph();
         sink.text("Since Checkstyle " + moduleSinceVersion);
         sink.paragraph_();
     }
 
 }
-
