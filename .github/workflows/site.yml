@@ -2,7 +2,8 @@ name: "Site"
 
 env:
   AWS_REGION: "us-east-2"
-  AWS_BUCKET_NAME: "checkstyle-diff-reports"
+  AWS_BUCKET_NAME: "stoyank7-checkstyle-files-generator-preview"
+  FAKE_AWS_UPLOAD: "true"
   PR_NUMBER: >-
     ${{
       inputs.pr-number
@@ -58,8 +59,6 @@ jobs:
 
       - name: Checkout repository
         uses: actions/checkout@v7
-        with:
-          repository: checkstyle/checkstyle-files-generator
 
       - name: Getting PR info
         id: pr_info
@@ -115,21 +114,12 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
-        with:
-          repository: checkstyle/checkstyle-files-generator
 
       - name: Download generated site
         uses: actions/download-artifact@v8
         with:
           name: checkstyle-site
           path: .ci-temp/checkstyle/target/site
-
-      - name: Configure AWS Credentials
-        uses: aws-actions/configure-aws-credentials@v6
-        with:
-          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
-          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-          aws-region: ${{ env.AWS_REGION }}
 
       - name: Publish site to AWS S3
         id: publish

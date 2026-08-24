@@ -8,10 +8,11 @@ case $1 in
 # Gets PR information (branch, commit_sha) and saves to .ci-temp
 get-pr-info)
   checkForVariable "GITHUB_TOKEN"
+  checkForVariable "GITHUB_REPOSITORY"
   checkForVariable "PR_NUMBER"
   mkdir -p .ci-temp
 
-  URL="https://api.github.com/repos/checkstyle/checkstyle-files-generator/pulls/${PR_NUMBER}"
+  URL="https://api.github.com/repos/${GITHUB_REPOSITORY}/pulls/${PR_NUMBER}"
 
   curl --fail-with-body -X GET "$URL" \
       -H "Accept: application/vnd.github+json" \
@@ -92,7 +93,11 @@ publish-site)
     find "$EXTRA_LINKS_FILE" -delete
   fi
 
-  aws s3 cp "$SITE" "s3://${AWS_BUCKET_NAME}/$FOLDER/" --recursive
+  if [[ ${FAKE_AWS_UPLOAD:-false} == true ]]; then
+    echo "Skipping AWS S3 upload; preview links are fake."
+  else
+    aws s3 cp "$SITE" "s3://${AWS_BUCKET_NAME}/$FOLDER/" --recursive
+  fi
 
   ./.ci/append-to-github-output.sh "message" "$(cat .ci-temp/message)"
   ;;
